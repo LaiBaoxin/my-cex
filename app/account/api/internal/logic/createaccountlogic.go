@@ -5,9 +5,9 @@ package logic
 
 import (
 	"context"
-
 	"github.com/wwater/my-cex/app/account/api/internal/svc"
 	"github.com/wwater/my-cex/app/account/api/internal/types"
+	"github.com/wwater/my-cex/app/wallet/rpc/walletclient"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +27,14 @@ func NewCreateAccountLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Cre
 }
 
 func (l *CreateAccountLogic) CreateAccount(req *types.CreateAccountReq) (resp *types.CreateAccountResp, err error) {
-	// todo: add your logic here and delete this line
+	rpcResp, err := l.svcCtx.WalletRpc.CreateWallet(l.ctx, &walletclient.CreateWalletReq{
+		Uid: req.UserId,
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	return
+	return &types.CreateAccountResp{
+		Address: rpcResp.Address,
+	}, nil
 }

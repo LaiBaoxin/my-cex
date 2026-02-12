@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/wwater/my-cex/app/wallet/rpc/internal/svc"
 	"github.com/wwater/my-cex/app/wallet/rpc/wallet"
@@ -24,7 +25,21 @@ func NewCreateWalletLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Crea
 }
 
 func (l *CreateWalletLogic) CreateWallet(in *wallet.CreateWalletReq) (*wallet.CreateWalletResp, error) {
-	// todo: add your logic here and delete this line
+	// 设定账户密码
+	password := fmt.Sprintf("wwater_%d", in.Uid)
 
-	return &wallet.CreateWalletResp{}, nil
+	// Keystore 生成新账户
+	account, err := l.svcCtx.KeyStore.NewAccount(password)
+	if err != nil {
+		l.Logger.Errorf("创建钱包失败: %v", err)
+		return nil, err
+	}
+
+	// 获取生成的0x地址
+	address := account.Address.Hex()
+	l.Logger.Infof("[Wallet RPC] 用户ID: %d 生成地址: %s", in.Uid, address)
+
+	return &wallet.CreateWalletResp{
+		Address: address,
+	}, nil
 }
