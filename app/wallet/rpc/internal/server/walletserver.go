@@ -27,3 +27,8 @@ func (s *WalletServer) CreateWallet(ctx context.Context, in *wallet.CreateWallet
 	l := logic.NewCreateWalletLogic(ctx, s.svcCtx)
 	return l.CreateWallet(in)
 }
+
+func (s *WalletServer) GetBalance(ctx context.Context, in *wallet.GetBalanceReq) (*wallet.GetBalanceResp, error) {
+	l := logic.NewGetBalanceLogic(ctx, s.svcCtx)
+	return l.GetBalance(in)
+}

@@ -26,7 +26,19 @@ func NewCreateWalletLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Crea
 }
 
 func (l *CreateWalletLogic) CreateWallet(in *wallet.CreateWalletReq) (*wallet.CreateWalletResp, error) {
-	// 设定账户密码
+	// 先查数据库，看这个人有没有钱包
+	var asset model.UserAsset
+	// 查询是否存在
+	err := l.svcCtx.DB.Where("uid = ? AND currency = ?", in.Uid, "ETH").First(&asset).Error
+
+	// 如果存在就直接返回
+	if err == nil {
+		return &wallet.CreateWalletResp{
+			Address: asset.Address,
+		}, nil
+	}
+
+	// 如果没找到，生成新钱包
 	password := fmt.Sprintf("wwater_%d", in.Uid)
 
 	// Keystore 生成新账户

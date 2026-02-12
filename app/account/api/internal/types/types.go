@@ -10,3 +10,12 @@ type CreateAccountReq struct {
 type CreateAccountResp struct {
 	Address string `json:"address"`
 }
+
+type GetBalanceReq struct {
+	UserId   int64  `json:"userId"`
+	Currency string `json:"currency"`
+}
+
+type GetBalanceResp struct {
+	Balance string `json:"balance"`
+}

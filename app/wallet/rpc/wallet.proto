@@ -15,7 +15,19 @@ message CreateWalletResp {
   string address = 1;
 }
 
+// 获取余额
+message GetBalanceReq {
+  int64 uid = 1;
+  string currency = 2; // 例如 "ETH"
+}
+
+message GetBalanceResp {
+  string balance = 1;
+  string currency = 2;
+}
+
 // 服务接口
 service Wallet {
   rpc CreateWallet(CreateWalletReq) returns(CreateWalletResp);
+  rpc GetBalance(GetBalanceReq) returns(GetBalanceResp);
 }

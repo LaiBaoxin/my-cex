@@ -14,11 +14,21 @@ type (
 	CreateAccountResp {
 		Address string `json:"address"`
 	}
+	GetBalanceReq {
+		UserId   int64  `json:"userId"`
+		Currency string `json:"currency"`
+	}
+	GetBalanceResp {
+		Balance string `json:"balance"`
+	}
 )
 
 // HTTP 服务
 service account-api {
 	@handler CreateAccount // 创建用户账户
 	post /account/create (CreateAccountReq) returns (CreateAccountResp)
+
+	@handler GetBalance // 获取用户余额
+	post /account/balance (GetBalanceReq) returns (GetBalanceResp)
 }
 
