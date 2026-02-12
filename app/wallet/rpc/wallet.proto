@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package wallet;
+
+// 生成的文件路径
+option go_package = "./wallet";
+
+// 创建钱包
+message CreateWalletReq {
+  int64 uid = 1;
+}
+
+// 返回地址
+message CreateWalletResp {
+  string address = 1;
+}
+
+// 服务接口
+service Wallet {
+  rpc CreateWallet(CreateWalletReq) returns(CreateWalletResp);
+}

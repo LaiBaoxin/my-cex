@@ -1,0 +1,24 @@
+syntax = "v1"
+
+info (
+	title:   "账户服务"
+	desc:    "负责用户注册、登录和资产查询"
+	author:  "wwater"
+	version: "v1"
+)
+
+type (
+	CreateAccountReq {
+		UserId int64 `json:"userId"`
+	}
+	CreateAccountResp {
+		Address string `json:"address"`
+	}
+)
+
+// HTTP 服务
+service account-api {
+	@handler CreateAccount // 创建用户账户
+	post /account/create (CreateAccountReq) returns (CreateAccountResp)
+}
+
