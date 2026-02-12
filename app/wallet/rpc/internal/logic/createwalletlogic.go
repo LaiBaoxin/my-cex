@@ -3,6 +3,7 @@ package logic
 import (
 	"context"
 	"fmt"
+	"github.com/wwater/my-cex/app/wallet/rpc/internal/model"
 
 	"github.com/wwater/my-cex/app/wallet/rpc/internal/svc"
 	"github.com/wwater/my-cex/app/wallet/rpc/wallet"
@@ -37,7 +38,21 @@ func (l *CreateWalletLogic) CreateWallet(in *wallet.CreateWalletReq) (*wallet.Cr
 
 	// 获取生成的0x地址
 	address := account.Address.Hex()
-	l.Logger.Infof("[Wallet RPC] 用户ID: %d 生成地址: %s", in.Uid, address)
+
+	// 创建存储的数据
+	data := model.UserAsset{
+		Uid:      in.Uid,
+		Address:  address,
+		Currency: "ETH",
+		Balance:  0,
+		Status:   1,
+	}
+
+	// 保存
+	if err = l.svcCtx.DB.Create(&data).Error; err != nil {
+		l.Logger.Errorf("[CreateWallet] 保存用户钱包数据库失败: %v", err)
+		return nil, err
+	}
 
 	return &wallet.CreateWalletResp{
 		Address: address,
