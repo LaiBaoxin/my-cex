@@ -28,3 +28,13 @@ type GetBalanceReq struct {
 type GetBalanceResp struct {
 	Balance string `json:"balance"`
 }
+
+type WithdrawReq struct {
+	UserId int64  `json:"userId"`
+	Amount string `json:"amount"`
+}
+
+type WithdrawResp struct {
+	Ok     bool   `json:"ok"`
+	TxHash string `json:"txHash"`
+}

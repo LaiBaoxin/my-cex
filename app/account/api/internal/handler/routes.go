@@ -29,6 +29,11 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/account/deposit",
 				Handler: DepositHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/account/withdraw",
+				Handler: WithdrawHandler(serverCtx),
+			},
 		},
 	)
 }

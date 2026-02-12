@@ -28,6 +28,14 @@ type (
 	DepositResp {
 		Ok bool `json:"ok"`
 	}
+	WithdrawReq {
+		UserId int64  `json:"userId"`
+		Amount string `json:"amount"`
+	}
+	WithdrawResp {
+		Ok     bool   `json:"ok"`
+		TxHash string `json:"txHash"`
+	}
 )
 
 // HTTP 服务
@@ -40,5 +48,8 @@ service account-api {
 
 	@handler Deposit // 充值
 	post /account/deposit (DepositReq) returns (DepositResp)
+
+	@handler Withdraw // 提现
+	post /account/withdraw (WithdrawReq) returns (WithdrawResp)
 }
 

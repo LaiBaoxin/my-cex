@@ -38,9 +38,22 @@ message DepositResp {
   string new_balance = 2;
 }
 
+// 提现
+message WithdrawReq {
+  int64 uid = 1;
+  string amount = 2; // 金额
+  string tx_id = 3;  // 业务流水号
+}
+
+message WithdrawResp {
+  bool success = 1;
+  string tx_hash = 2; // 模拟返回一个链上哈希
+}
+
 // 服务接口
 service Wallet {
   rpc CreateWallet(CreateWalletReq) returns(CreateWalletResp);
   rpc GetBalance(GetBalanceReq) returns(GetBalanceResp);
   rpc Deposit(DepositReq) returns(DepositResp);
+  rpc Withdraw(WithdrawReq) returns(WithdrawResp);
 }
