@@ -21,6 +21,13 @@ type (
 	GetBalanceResp {
 		Balance string `json:"balance"`
 	}
+	DepositReq {
+		UserId int64  `json:"userId"`
+		Amount string `json:"amount"`
+	}
+	DepositResp {
+		Ok bool `json:"ok"`
+	}
 )
 
 // HTTP 服务
@@ -30,5 +37,8 @@ service account-api {
 
 	@handler GetBalance // 获取用户余额
 	post /account/balance (GetBalanceReq) returns (GetBalanceResp)
+
+	@handler Deposit // 充值
+	post /account/deposit (DepositReq) returns (DepositResp)
 }
 

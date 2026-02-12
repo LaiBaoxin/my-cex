@@ -16,12 +16,15 @@ import (
 type (
 	CreateWalletReq  = wallet.CreateWalletReq
 	CreateWalletResp = wallet.CreateWalletResp
+	DepositReq       = wallet.DepositReq
+	DepositResp      = wallet.DepositResp
 	GetBalanceReq    = wallet.GetBalanceReq
 	GetBalanceResp   = wallet.GetBalanceResp
 
 	Wallet interface {
 		CreateWallet(ctx context.Context, in *CreateWalletReq, opts ...grpc.CallOption) (*CreateWalletResp, error)
 		GetBalance(ctx context.Context, in *GetBalanceReq, opts ...grpc.CallOption) (*GetBalanceResp, error)
+		Deposit(ctx context.Context, in *DepositReq, opts ...grpc.CallOption) (*DepositResp, error)
 	}
 
 	defaultWallet struct {
@@ -43,4 +46,9 @@ func (m *defaultWallet) CreateWallet(ctx context.Context, in *CreateWalletReq, o
 func (m *defaultWallet) GetBalance(ctx context.Context, in *GetBalanceReq, opts ...grpc.CallOption) (*GetBalanceResp, error) {
 	client := wallet.NewWalletClient(m.cli.Conn())
 	return client.GetBalance(ctx, in, opts...)
+}
+
+func (m *defaultWallet) Deposit(ctx context.Context, in *DepositReq, opts ...grpc.CallOption) (*DepositResp, error) {
+	client := wallet.NewWalletClient(m.cli.Conn())
+	return client.Deposit(ctx, in, opts...)
 }

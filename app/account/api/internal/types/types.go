@@ -11,6 +11,15 @@ type CreateAccountResp struct {
 	Address string `json:"address"`
 }
 
+type DepositReq struct {
+	UserId int64  `json:"userId"`
+	Amount string `json:"amount"`
+}
+
+type DepositResp struct {
+	Ok bool `json:"ok"`
+}
+
 type GetBalanceReq struct {
 	UserId   int64  `json:"userId"`
 	Currency string `json:"currency"`
