@@ -24,3 +24,5 @@ logs/
 *.log
 etc/*.yaml
 !etc/*.sample.yaml
+node_modules/
+*.lock
