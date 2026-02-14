@@ -20,6 +20,7 @@ type (
 	}
 	GetBalanceResp {
 		Balance string `json:"balance"`
+		Address string `json:"address"`
 	}
 	DepositReq {
 		UserId int64  `json:"userId"`

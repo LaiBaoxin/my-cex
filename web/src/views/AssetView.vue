@@ -75,7 +75,7 @@ const fetchBalance = async () => {
     balance.value = data.balance
     tableData.value = [{
       uid: form.value.userId,
-      address: '0x' + Math.random().toString(16).slice(2, 10) + '...', // 模拟展示
+      address: data.address,
       currency: 'ETH',
       balance: data.balance
     }]

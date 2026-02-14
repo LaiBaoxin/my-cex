@@ -38,5 +38,6 @@ func (l *GetBalanceLogic) GetBalance(req *types.GetBalanceReq) (resp *types.GetB
 
 	return &types.GetBalanceResp{
 		Balance: rpcResp.Balance,
+		Address: rpcResp.Address,
 	}, nil
 }

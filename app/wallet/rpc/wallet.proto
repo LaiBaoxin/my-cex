@@ -24,6 +24,7 @@ message GetBalanceReq {
 message GetBalanceResp {
   string balance = 1;
   string currency = 2;
+  string address = 3;
 }
 
 // 充值
@@ -47,7 +48,7 @@ message WithdrawReq {
 
 message WithdrawResp {
   bool success = 1;
-  string tx_hash = 2; // 模拟返回一个链上哈希
+  string tx_hash = 2;
 }
 
 // 服务接口

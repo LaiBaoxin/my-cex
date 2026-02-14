@@ -168,6 +168,7 @@ type GetBalanceResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Balance       string                 `protobuf:"bytes,1,opt,name=balance,proto3" json:"balance,omitempty"`
 	Currency      string                 `protobuf:"bytes,2,opt,name=currency,proto3" json:"currency,omitempty"`
+	Address       string                 `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -212,6 +213,13 @@ func (x *GetBalanceResp) GetBalance() string {
 func (x *GetBalanceResp) GetCurrency() string {
 	if x != nil {
 		return x.Currency
+	}
+	return ""
+}
+
+func (x *GetBalanceResp) GetAddress() string {
+	if x != nil {
+		return x.Address
 	}
 	return ""
 }
@@ -393,7 +401,7 @@ func (x *WithdrawReq) GetTxId() string {
 type WithdrawResp struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	TxHash        string                 `protobuf:"bytes,2,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"` // 模拟返回一个链上哈希
+	TxHash        string                 `protobuf:"bytes,2,opt,name=tx_hash,json=txHash,proto3" json:"tx_hash,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -453,10 +461,11 @@ const file_app_wallet_rpc_wallet_proto_rawDesc = "" +
 	"\aaddress\x18\x01 \x01(\tR\aaddress\"=\n" +
 	"\rGetBalanceReq\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x1a\n" +
-	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"F\n" +
+	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"`\n" +
 	"\x0eGetBalanceResp\x12\x18\n" +
 	"\abalance\x18\x01 \x01(\tR\abalance\x12\x1a\n" +
-	"\bcurrency\x18\x02 \x01(\tR\bcurrency\"K\n" +
+	"\bcurrency\x18\x02 \x01(\tR\bcurrency\x12\x18\n" +
+	"\aaddress\x18\x03 \x01(\tR\aaddress\"K\n" +
 	"\n" +
 	"DepositReq\x12\x10\n" +
 	"\x03uid\x18\x01 \x01(\x03R\x03uid\x12\x16\n" +

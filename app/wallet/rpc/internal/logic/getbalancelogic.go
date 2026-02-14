@@ -32,16 +32,18 @@ func (l *GetBalanceLogic) GetBalance(in *wallet.GetBalanceReq) (*wallet.GetBalan
 	err := l.svcCtx.DB.Where("uid = ? AND currency = ?", in.Uid, in.Currency).First(&asset).Error
 
 	if err != nil {
-		// 如果没找到，返回余额 0
+		// 如果没找到，返回余额 0 和 地址
 		return &wallet.GetBalanceResp{
 			Balance:  "0.0000",
 			Currency: in.Currency,
+			Address:  "未创建钱包",
 		}, nil
 	}
 
 	// 返回结果
 	return &wallet.GetBalanceResp{
-		Balance:  fmt.Sprintf("%.4f", asset.Balance), // 保留4位小数
+		Balance:  fmt.Sprintf("%.4f", asset.Balance),
 		Currency: asset.Currency,
+		Address:  asset.Address,
 	}, nil
 }

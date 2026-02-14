@@ -27,6 +27,7 @@ type GetBalanceReq struct {
 
 type GetBalanceResp struct {
 	Balance string `json:"balance"`
+	Address string `json:"address"`
 }
 
 type WithdrawReq struct {
