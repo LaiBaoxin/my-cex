@@ -29,3 +29,15 @@ CREATE TABLE `user_transactions` (
  UNIQUE KEY `idx_tx_id` (`tx_id`),
  KEY `idx_uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户账变流水表';
+
+CREATE TABLE `system_logs` (
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+    `uid` bigint unsigned NOT NULL COMMENT '用户ID',
+    `op_type` varchar(20) NOT NULL COMMENT '操作类型: DEPOSIT/WITHDRAW',
+    `content` text NOT NULL COMMENT '详细日志内容',
+    `amount` decimal(30,18) DEFAULT '0.000000000000000000' COMMENT '变动金额',
+    `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `idx_uid` (`uid`),
+    KEY `idx_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统审计日志表';

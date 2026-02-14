@@ -1,87 +1,111 @@
 <template>
-  <div class="asset-container">
-    <el-row :gutter="20" class="stat-row">
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="hover" class="stat-card blue">
-          <div class="stat-info">
-            <div class="label">当前系统总用户</div>
-            <div class="value">1,284</div>
-          </div>
+  <div class="asset-view-wrapper">
+    <el-row :gutter="20">
+      <el-col :xs="24" :md="16" class="mb-20">
+        <el-card shadow="never" class="custom-card">
+          <template #header>
+            <div class="card-title">资产管理控制台</div>
+          </template>
+
+          <el-form :inline="true" class="search-form">
+            <el-form-item label="用户 UID">
+              <el-input-number v-model="form.userId" :min="1" controls-position="right" />
+            </el-form-item>
+            <div class="button-group">
+              <el-button type="primary" @click="fetchBalance">查询刷新</el-button>
+              <el-button type="success" @click="handleDeposit">一键充值 10 ETH</el-button>
+            </div>
+          </el-form>
+
+          <el-table :data="tableData" border stripe class="mt-20" v-loading="loading">
+            <el-table-column prop="uid" label="用户 ID" width="80" align="center" />
+            <el-table-column prop="address" label="钱包地址" min-width="180" show-overflow-tooltip />
+            <el-table-column prop="balance" label="当前余额" width="130" align="right">
+              <template #default="scope">
+                <span class="balance-num">{{ scope.row.balance }}</span> <small>ETH</small>
+              </template>
+            </el-table-column>
+          </el-table>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="12" :lg="8">
-        <el-card shadow="hover" class="stat-card green">
-          <div class="stat-info">
-            <div class="label">查询用户余额 (UID: {{ form.userId }})</div>
-            <div class="value">{{ balance }} <span class="unit">ETH</span></div>
+
+      <el-col :xs="24" :md="8">
+        <el-card class="log-card custom-card" shadow="never">
+          <template #header>
+            <div class="log-header">
+              <div class="status-dot"></div>
+              <span>系统实时流水审计</span>
+            </div>
+          </template>
+
+          <div class="timeline-wrapper">
+            <el-timeline v-if="logs.length > 0">
+              <el-timeline-item
+                  v-for="(log, index) in logs"
+                  :key="index"
+                  :type="log.type === 'DEPOSIT' ? 'success' : 'primary'"
+                  :timestamp="log.time"
+                  hollow
+              >
+                <div class="log-text">{{ log.message }}</div>
+              </el-timeline-item>
+            </el-timeline>
+            <el-empty v-else :image-size="60" description="暂无实时动态" />
           </div>
         </el-card>
       </el-col>
     </el-row>
-
-    <el-card class="list-card">
-      <template #header>
-        <div class="header-content">
-          <div class="title">资产列表管理</div>
-          <div class="actions">
-            <el-button type="primary" @click="fetchBalance">刷新查询</el-button>
-            <el-button type="success" @click="handleDeposit">一键充值 10 ETH</el-button>
-          </div>
-        </div>
-      </template>
-
-      <el-table :data="tableData" border stripe style="width: 100%" v-loading="loading">
-        <el-table-column prop="uid" label="用户 ID" width="120" align="center" />
-        <el-table-column prop="address" label="钱包地址" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="currency" label="币种" width="100" align="center">
-          <template #default="scope">
-            <el-tag>{{ scope.row.currency }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="balance" label="当前余额" width="180">
-          <template #default="scope">
-            <span class="balance-text">{{ scope.row.balance }} ETH</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="150" align="center">
-          <template #default>
-            <el-button link type="primary">流水明细</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { getBalance, deposit, getSystemLogs } from '@/api/account'
 import { ElMessage } from 'element-plus'
-import { getBalance, deposit } from '@/api/account'
 
 const loading = ref(false)
 const form = ref({ userId: 10010 })
-const balance = ref('0.0000')
 const tableData = ref([])
+const logs = ref([])
 
-// 查询余额逻辑
+let socket = null
+const initWebSocket = () => {
+  socket = new WebSocket('ws://localhost:8888/ws')
+  socket.onmessage = (event) => {
+    const data = JSON.parse(event.data)
+    logs.value.unshift(data)
+    if (logs.value.length > 15) logs.value.pop()
+    if (data.userId === form.value.userId) {
+      fetchBalance()
+    }
+  }
+  socket.onclose = () => {
+    setTimeout(initWebSocket, 3000)
+  }
+}
+
+// fetchHistoryLogs 获取历史流水
+const fetchHistoryLogs = async () => {
+  try {
+    const res = await getSystemLogs({ limit: 10 })
+    logs.value = res.list.map(item => ({
+      type: item.opType,
+      userId: item.uid,
+      message: item.content,
+      time: item.createdAt
+    }))
+  } catch (err) {}
+}
+
 const fetchBalance = async () => {
   loading.value = true
   try {
-    const data = await getBalance({
-      userId: parseInt(form.value.userId),
-      currency: 'ETH'
-    })
-
-    balance.value = data.balance
+    const data = await getBalance({ userId: form.value.userId, currency: 'ETH' })
     tableData.value = [{
       uid: form.value.userId,
       address: data.address,
-      currency: 'ETH',
       balance: data.balance
     }]
-    ElMessage.success('同步成功')
-  } catch (err) {
-    console.error(err)
   } finally {
     loading.value = false
   }
@@ -89,58 +113,119 @@ const fetchBalance = async () => {
 
 const handleDeposit = async () => {
   try {
-    await deposit({
-      userId: parseInt(form.value.userId),
-      amount: "10"
-    })
+    await deposit({ userId: form.value.userId, amount: "10" })
     ElMessage.success('充值成功')
-    await fetchBalance()
   } catch (err) {}
 }
 
-onMounted(async () => {
-  console.log("初始化执行")
-  await fetchBalance()
+onMounted(() => {
+  fetchBalance()
+  fetchHistoryLogs()
+  initWebSocket()
+})
+
+onUnmounted(() => {
+  if (socket) socket.close()
 })
 </script>
 
 <style scoped>
-
-.asset-container {
+.asset-view-wrapper {
   padding: 20px;
-  background-color: #f5f7fa;
-  min-height: calc(100vh - 100px);
+  box-sizing: border-box;
+  width: 100%;
 }
 
-.stat-row {
-  margin-bottom: 20px;
+.custom-card {
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
 }
 
-.stat-card {
-  height: 100px;
+.card-title {
+  font-weight: 600;
+  color: #303133;
+}
+
+.mt-20 { margin-top: 20px; }
+.mb-20 { margin-bottom: 20px; }
+
+.search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.balance-num {
+  font-weight: bold;
+  color: #67c23a;
+}
+
+.log-card {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 100px);
+}
+
+.timeline-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.log-header {
   display: flex;
   align-items: center;
-  color: white;
+  gap: 8px;
+  font-weight: bold;
 }
 
-.stat-card.blue { background: linear-gradient(135deg, #3a7bd5, #00d2ff); }
-.stat-card.green { background: linear-gradient(135deg, #11998e, #38ef7d); }
-
-.stat-info .label { font-size: 14px; opacity: 0.8; }
-.stat-info .value { font-size: 28px; font-weight: bold; margin-top: 5px; }
-.unit { font-size: 16px; margin-left: 5px; }
-
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.log-text {
+  font-size: 13px;
+  color: #606266;
+  line-height: 1.5;
 }
 
-.title { font-size: 18px; font-weight: bold; color: #303133; }
-.balance-text { font-weight: bold; color: #67C23A; }
+/* 呼吸灯 */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #67c23a;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #67c23a;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.3; }
+}
 
 @media (max-width: 768px) {
-  .actions { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; }
-  .stat-row .el-col { margin-bottom: 10px; }
+  .asset-view-wrapper {
+    padding: 10px;
+  }
+
+  .log-card {
+    height: 500px;
+    margin-bottom: 20px;
+  }
+
+  .el-form-item {
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .button-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .button-group .el-button {
+    flex: 1;
+  }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <el-config-provider>
     <div class="common-layout">
-      <el-container style="height: 100vh;">
+      <el-container style="width: 100vw; height: 100vh;">
         <el-aside width="200px" style="background-color: #304156; transition: width 0.3s;">
           <div class="logo-container">
             <img src="@/assets/logo.svg" alt="logo" class="logo" v-if="false" />

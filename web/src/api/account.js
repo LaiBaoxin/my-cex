@@ -26,3 +26,12 @@ export function withdraw(data) {
         data
     })
 }
+
+// getSystemLogs 查询系统日志
+export function getSystemLogs(params) {
+    return request({
+        url: '/account/logs',
+        method: 'get',
+        params
+    })
+}

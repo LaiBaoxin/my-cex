@@ -11,4 +11,7 @@ import (
 type Config struct {
 	rest.RestConf
 	WalletRpc zrpc.RpcClientConf
+	Mysql     struct {
+		DataSource string
+	}
 }

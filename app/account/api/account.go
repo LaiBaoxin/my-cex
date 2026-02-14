@@ -6,6 +6,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/wwater/my-cex/common/websocket"
+	"net/http"
 
 	"github.com/wwater/my-cex/app/account/api/internal/config"
 	"github.com/wwater/my-cex/app/account/api/internal/handler"
@@ -28,6 +30,13 @@ func main() {
 
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
+
+	// ws 服务入口
+	server.AddRoute(rest.Route{
+		Method:  http.MethodGet,
+		Path:    "/ws",
+		Handler: websocket.GlobalHub.ServerWS,
+	})
 
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

@@ -30,6 +30,23 @@ type GetBalanceResp struct {
 	Address string `json:"address"`
 }
 
+type GetLogsReq struct {
+	Limit int `form:"limit,default=10"`
+}
+
+type GetLogsResp struct {
+	List []LogItem `json:"list"`
+}
+
+type LogItem struct {
+	Id        int64  `json:"id"`
+	UserId    int64  `json:"userId"`
+	OpType    string `json:"opType"`
+	Content   string `json:"content"`
+	Amount    string `json:"amount"`
+	CreatedAt string `json:"createdAt"`
+}
+
 type WithdrawReq struct {
 	UserId int64  `json:"userId"`
 	Amount string `json:"amount"`

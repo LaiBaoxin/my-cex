@@ -2,10 +2,19 @@ syntax = "v1"
 
 info (
 	title:   "账户服务"
-	desc:    "负责用户注册、登录和资产查询"
+	desc:    "负责用户资产管理与审计日志"
 	author:  "wwater"
 	version: "v1"
 )
+
+type LogItem {
+	Id        int64  `json:"id"`
+	UserId    int64  `json:"userId"`
+	OpType    string `json:"opType"`
+	Content   string `json:"content"`
+	Amount    string `json:"amount"`
+	CreatedAt string `json:"createdAt"`
+}
 
 type (
 	CreateAccountReq {
@@ -37,9 +46,14 @@ type (
 		Ok     bool   `json:"ok"`
 		TxHash string `json:"txHash"`
 	}
+	GetLogsReq {
+		Limit int `form:"limit,default=10"`
+	}
+	GetLogsResp {
+		List []LogItem `json:"list"`
+	}
 )
 
-// HTTP 服务
 service account-api {
 	@handler CreateAccount // 创建用户账户
 	post /account/create (CreateAccountReq) returns (CreateAccountResp)
@@ -52,5 +66,8 @@ service account-api {
 
 	@handler Withdraw // 提现
 	post /account/withdraw (WithdrawReq) returns (WithdrawResp)
+
+	@handler GetLogs // 获取用户操作日志
+	get /account/logs (GetLogsReq) returns (GetLogsResp)
 }
 
