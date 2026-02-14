@@ -7,3 +7,8 @@ Etcd:
 
 # mysql 连接配置
 DataSource: root:123456@tcp(127.0.0.1:3306)/my_cex?charset=utf8mb4&parseTime=True&loc=Local
+
+# 区块链配置
+Blockchain:
+  RpcUrl: "http://127.0.0.1:8545"
+  ContractAddress: "0x5FbDB2315678afecb367f032d93F642f64180aa3"

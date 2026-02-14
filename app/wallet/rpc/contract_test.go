@@ -16,8 +16,8 @@ func TestContractClient(t *testing.T) {
 		t.Fatalf("无法连接到 Anvil: %v", err)
 	}
 
-	// 部署合约地址Contract Address: 0x5FbDB...
-	address := common.HexToAddress("0x5FbDB")
+	// 部署合约地址Contract Address: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+	address := common.HexToAddress("0x5FbDB2315678afecb367f032d93F642f64180aa3")
 
 	// 创建合约实例
 	instance, err := mytoken.NewMyToken(address, client)
