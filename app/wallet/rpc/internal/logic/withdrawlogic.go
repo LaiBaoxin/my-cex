@@ -10,13 +10,14 @@ import (
 	"github.com/wwater/my-cex/app/wallet/rpc/internal/model"
 	"github.com/wwater/my-cex/app/wallet/rpc/internal/svc"
 	"github.com/wwater/my-cex/app/wallet/rpc/wallet"
+	"github.com/wwater/my-cex/common/websocket"
+	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"math"
 	"math/big"
 	"strconv"
-
-	"github.com/zeromicro/go-zero/core/logx"
+	"time"
 )
 
 type WithdrawLogic struct {
@@ -105,6 +106,24 @@ func (l *WithdrawLogic) Withdraw(in *wallet.WithdrawReq) (*wallet.WithdrawResp, 
 		l.Logger.Errorf("提现流程失败: %v", err)
 		return &wallet.WithdrawResp{Success: false}, err
 	}
+	// 创建提现的日志
+	logEntry := model.AccountSystemLog{
+		Uid:       in.Uid,
+		OpType:    "WITHDRAW",
+		Amount:    amountFloat,
+		Content:   fmt.Sprintf("成功提现 %s MCT, Hash: %s", in.Amount, txHash[:10]+"..."),
+		CreatedAt: time.Now(),
+	}
+	if err = l.svcCtx.DB.Create(&logEntry).Error; err != nil {
+		l.Logger.Errorf("记录审计日志失败: %v", err)
+	}
+
+	websocket.GlobalHub.Broadcast(map[string]interface{}{
+		"type":    "WITHDRAW",
+		"userId":  in.Uid,
+		"message": fmt.Sprintf("UID:%d 成功提现 %s MCT (已上链)", in.Uid, in.Amount),
+		"time":    time.Now().Format("2006-01-02 15:04:05"),
+	})
 
 	return &wallet.WithdrawResp{
 		Success: true,

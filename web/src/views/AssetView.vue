@@ -14,6 +14,7 @@
             <div class="button-group">
               <el-button type="primary" @click="fetchBalance">查询刷新</el-button>
               <el-button type="success" @click="handleDeposit">一键充值 10 ETH</el-button>
+              <el-button type="danger" @click="handleWithdraw" :loading="withdrawLoading">安全提现 5 ETH</el-button>
             </div>
           </el-form>
 
@@ -33,8 +34,11 @@
         <el-card class="log-card custom-card" shadow="never">
           <template #header>
             <div class="log-header">
-              <div class="status-dot"></div>
-              <span>系统实时流水审计</span>
+             <div class="box">
+               <div class="status-dot"></div>
+               <span>系统实时流水审计</span>
+             </div>
+              <el-button class="ml-10" @click="fetchHistoryLogs">刷新流水</el-button>
             </div>
           </template>
 
@@ -43,7 +47,7 @@
               <el-timeline-item
                   v-for="(log, index) in logs"
                   :key="index"
-                  :type="log.type === 'DEPOSIT' ? 'success' : 'primary'"
+                  :color="log.type === 'DEPOSIT' ? '#67c23a' : '#f56c6c'"
                   :timestamp="log.time"
                   hollow
               >
@@ -60,22 +64,32 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { getBalance, deposit, getSystemLogs } from '@/api/account'
+import { getBalance, deposit, getSystemLogs, withdraw } from '@/api/account'
 import { ElMessage } from 'element-plus'
 
 const loading = ref(false)
 const form = ref({ userId: 10010 })
 const tableData = ref([])
 const logs = ref([])
+const withdrawLoading = ref(false)
 
 let socket = null
 const initWebSocket = () => {
   socket = new WebSocket('ws://localhost:8888/ws')
   socket.onmessage = (event) => {
     const data = JSON.parse(event.data)
-    logs.value.unshift(data)
+    const newLog = {
+      type: data.type,
+      userId: data.userId || data.uid,
+      message: data.message || data.content,
+      time: data.time || data.createdAt
+    }
+
+    logs.value.unshift(newLog)
+
     if (logs.value.length > 15) logs.value.pop()
-    if (data.userId === form.value.userId) {
+
+    if (newLog.userId === form.value.userId) {
       fetchBalance()
     }
   }
@@ -95,6 +109,37 @@ const fetchHistoryLogs = async () => {
       time: item.createdAt
     }))
   } catch (err) {}
+}
+
+// handleWithdraw 提现
+const handleWithdraw = async () => {
+  if (parseFloat(tableData.value[0]?.balance || 0) < 5) {
+    return ElMessage.error('链上余额不足，无法提现')
+  }
+
+  try {
+    withdrawLoading.value = true
+    const res = await withdraw({
+      userId: form.value.userId,
+      amount: "5" // 每次提现 5 枚
+    })
+
+    if (res.ok) {
+      ElMessage({
+        message: `提现交易已发送！Hash: ${res.txHash.slice(0, 10)}...`,
+        type: 'success',
+        duration: 5000
+      })
+    }
+  } catch (err) {
+    ElMessage({
+      message: `提现交易失败${err}`,
+      type: 'error',
+      duration: 5000
+    })
+  } finally {
+    withdrawLoading.value = false
+  }
 }
 
 const fetchBalance = async () => {
@@ -182,6 +227,13 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   font-weight: bold;
+  justify-content: space-between;
+}
+
+.box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .log-text {
@@ -198,6 +250,7 @@ onUnmounted(() => {
   border-radius: 50%;
   box-shadow: 0 0 5px #67c23a;
   animation: blink 2s infinite;
+  margin-right: 10px;
 }
 
 @keyframes blink {
