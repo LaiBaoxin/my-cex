@@ -8,5 +8,7 @@ type Config struct {
 	Blockchain struct {
 		RpcUrl          string
 		ContractAddress string
+		AdminPrivateKey string
+		ChainID         int64
 	}
 }

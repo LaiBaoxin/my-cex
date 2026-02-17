@@ -14,4 +14,10 @@ type Config struct {
 	Mysql     struct {
 		DataSource string
 	}
+	Blockchain struct {
+		RpcUrl          string
+		ContractAddress string
+		AdminPrivateKey string
+		ChainID         int64
+	}
 }

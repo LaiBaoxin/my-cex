@@ -66,8 +66,8 @@ func (l *WithdrawLogic) Withdraw(in *wallet.WithdrawReq) (*wallet.WithdrawResp, 
 			return errors.New("余额不足")
 		}
 
-		privateKey, _ := crypto.HexToECDSA("ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
-		auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(31337))
+		privateKey, _ := crypto.HexToECDSA(l.svcCtx.Config.Blockchain.AdminPrivateKey)
+		auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(l.svcCtx.Config.Blockchain.ChainID))
 		if err != nil {
 			return fmt.Errorf("构造签名器失败: %v", err)
 		}

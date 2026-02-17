@@ -44,9 +44,9 @@ func (l *DepositLogic) Deposit(req *types.DepositReq) (resp *types.DepositResp, 
 	}
 
 	// 准备链上签名对象
-	privateKey, _ := crypto.HexToECDSA("ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
+	privateKey, _ := crypto.HexToECDSA(l.svcCtx.Config.Blockchain.AdminPrivateKey)
 	// 获取 ChainID
-	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(31337))
+	auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(l.svcCtx.Config.Blockchain.ChainID))
 	if err != nil {
 		return nil, fmt.Errorf("构造签名器失败: %v", err)
 	}
